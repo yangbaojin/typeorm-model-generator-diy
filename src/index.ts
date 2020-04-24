@@ -283,6 +283,18 @@ function checkYargsParameters(options: options): options {
             boolean: true,
             default: options.generationOptions.exportType === "default",
             describe: "Generate index file"
+        },
+        g: {
+            alias: "is-graphql",
+            boolean: true,
+            default: options.generationOptions.isGraphql,
+            describe: "Add Graphql Decorator"
+        },
+        tp: {
+            alias: "table-prefix",
+            string: true,
+            default: options.generationOptions.tablePrefix,
+            describe: "entityName replace tablePrefix"
         }
     });
 
@@ -320,7 +332,8 @@ function checkYargsParameters(options: options): options {
     options.generationOptions.exportType = argv.defaultExport
         ? "default"
         : "named";
-
+    options.generationOptions.isGraphql = argv.g;
+    options.generationOptions.tablePrefix = argv.tp as IGenerationOptions["tablePrefix"];
     return options;
 }
 
@@ -464,6 +477,16 @@ async function useInquirer(options: options): Promise<options> {
             }
         ])
     ).output;
+    options.generationOptions.tablePrefix = (
+        await inquirer.prompt([
+            {
+                default: options.generationOptions.tablePrefix,
+                message: "entityName replace tablePrefix",
+                name: "tablePrefix",
+                type: "input"
+            }
+        ])
+    ).tablePrefix;
     const { customizeGeneration } = await inquirer.prompt([
         {
             default: false,
@@ -552,6 +575,11 @@ async function useInquirer(options: options): Promise<options> {
                             checked:
                                 options.generationOptions.exportType ===
                                 "default"
+                        },
+                        {
+                            name: "Add Graphql Decorator",
+                            value: "isGraphql",
+                            checked: options.generationOptions.isGraphql
                         }
                     ],
                     message: "Available customizations",
@@ -595,6 +623,9 @@ async function useInquirer(options: options): Promise<options> {
         options.generationOptions.lazy = customizations.includes("lazy");
         options.generationOptions.activeRecord = customizations.includes(
             "activeRecord"
+        );
+        options.generationOptions.isGraphql = customizations.includes(
+            "isGraphql"
         );
         options.generationOptions.relationIds = customizations.includes(
             "relationId"

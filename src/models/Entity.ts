@@ -10,6 +10,8 @@ export type Entity = {
     database?: string;
     schema?: string;
 
+    tableComment?: string;
+
     columns: Column[];
     relationIds: RelationId[];
     relations: Relation[];
@@ -18,4 +20,5 @@ export type Entity = {
     fileImports: string[];
     activeRecord?: true;
     generateConstructor?: true;
+    isGraphql?: true;
 };

@@ -79,7 +79,7 @@ export default function modelCustomizationPhase(
     namingStrategy.enablePluralization(generationOptions.pluralizeNames);
     let retVal = removeIndicesGeneratedByTypeorm(dbModel);
     retVal = removeColumnsInRelation(dbModel);
-    retVal = applyNamingStrategy(namingStrategy, dbModel);
+    retVal = applyNamingStrategy(namingStrategy, dbModel, generationOptions);
     retVal = addImportsAndGenerationOptions(retVal, generationOptions);
     retVal = removeColumnDefaultProperties(retVal, defaultValues);
     return retVal;
@@ -222,15 +222,19 @@ function addImportsAndGenerationOptions(
         if (generationOptions.generateConstructor) {
             entity.generateConstructor = true;
         }
+        if (generationOptions.isGraphql) {
+            entity.isGraphql = true;
+        }
     });
     return dbModel;
 }
 
 function applyNamingStrategy(
     namingStrategy: typeof NamingStrategy,
-    dbModel: Entity[]
+    dbModel: Entity[],
+    generationOptions: IGenerationOptions
 ): Entity[] {
-    let retVal = changeRelationNames(dbModel);
+    let retVal = changeRelationNames(dbModel, generationOptions);
     retVal = changeRelationIdNames(retVal);
     retVal = changeEntityNames(retVal);
     retVal = changeColumnNames(retVal);
@@ -265,11 +269,18 @@ function applyNamingStrategy(
         return dbModel;
     }
 
-    function changeRelationNames(model: Entity[]): Entity[] {
+    function changeRelationNames(
+        model: Entity[],
+        generationOption: IGenerationOptions
+    ): Entity[] {
         model.forEach(entity => {
             entity.relations.forEach(relation => {
                 const oldName = relation.fieldName;
-                let newName = namingStrategy.relationName(relation, entity);
+                let newName = namingStrategy.relationName(
+                    relation,
+                    entity,
+                    generationOption.tablePrefix
+                );
                 newName = TomgUtils.findNameForNewField(
                     newName,
                     entity,

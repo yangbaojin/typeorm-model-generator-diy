@@ -76,6 +76,7 @@ export default abstract class AbstractDriver {
             TABLE_SCHEMA: string;
             TABLE_NAME: string;
             DB_NAME: string;
+            TABLE_COMMENT?: string;
         }[]
     >;
 
@@ -235,7 +236,8 @@ export default abstract class AbstractDriver {
                 tscName: val.TABLE_NAME,
                 database: dbNames.includes(",") ? val.DB_NAME : "",
                 schema: val.TABLE_SCHEMA,
-                fileImports: []
+                fileImports: [],
+                tableComment: val.TABLE_COMMENT ? val.TABLE_COMMENT : ""
             });
         });
         return ret;

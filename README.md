@@ -1,5 +1,30 @@
 # typeorm-model-generator
 
+## 对typeorm-model-generator项目的封装修改
+
+- [x] 新增了实体中graphql类型和字段装饰器
+- [x] 新增了生成graphql装饰器字段注释和表注释
+- [x] 新增了命令行isGraphql(缩写别名-g) 意为是否生成graphql装饰器
+- [x] 新增了处理表前缀命令行选项--tp(别名table-prefix) 意为生成实体和关联字段忽略前缀，文件名称带前缀
+- [x] 实体文件名实体类名增加entity后缀 （实现的有点丑陋，将就用）
+- [ ] 处理多前缀问题
+- [ ] 目前只处理了mysql数据库， 后续考虑新增其他数据库支持    
+
+- 使用
+  ```
+  git clone 
+  yarn install
+  yarn build
+  cd bin
+  # 和原来的一样的命令
+  ./typeorm-model-generator
+  ```
+
+- 推荐使用命令和生成文件的风格
+```
+./typeorm-model-generator -h yourhost -d yourdb -p yourport -u youruser -x yourpassword -e mysql -o ./tmp_entity --noConfig true --ce pascal --cp camel --cf param -a true -g true --tp youprefix_
+```
+
 [![Build Status](https://travis-ci.org/Kononnable/typeorm-model-generator.svg?branch=master)](https://travis-ci.org/Kononnable/typeorm-model-generator)
 [![npm version](https://badge.fury.io/js/typeorm-model-generator.svg)](https://badge.fury.io/js/typeorm-model-generator)
 [![codecov](https://codecov.io/gh/Kononnable/typeorm-model-generator/branch/master/graph/badge.svg)](https://codecov.io/gh/Kononnable/typeorm-model-generator)

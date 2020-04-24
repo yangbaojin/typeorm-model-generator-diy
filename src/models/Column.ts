@@ -22,4 +22,5 @@ export type Column = {
         enum?: string[];
         array?: boolean; // ?
     };
+    columnComment?: string; // 新增获取字段注释
 };

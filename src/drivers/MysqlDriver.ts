@@ -39,7 +39,8 @@ export default class MysqlDriver extends AbstractDriver {
             TABLE_SCHEMA: string;
             TABLE_NAME: string;
             DB_NAME: string;
-        }>(`SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_SCHEMA as DB_NAME
+            TABLE_COMMENT?: string;
+        }>(`SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_SCHEMA as DB_NAME, TABLE_COMMENT
             FROM information_schema.tables
             WHERE table_type='BASE TABLE'
             AND table_schema IN (${MysqlDriver.escapeCommaSeparatedList(
@@ -65,9 +66,10 @@ export default class MysqlDriver extends AbstractDriver {
             IsIdentity: number;
             COLUMN_TYPE: string;
             COLUMN_KEY: string;
+            COLUMN_COMMENT?: string;
         }>(`SELECT TABLE_NAME,COLUMN_NAME,COLUMN_DEFAULT,IS_NULLABLE,
             DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE,
-            CASE WHEN EXTRA like '%auto_increment%' THEN 1 ELSE 0 END IsIdentity, COLUMN_TYPE, COLUMN_KEY
+            CASE WHEN EXTRA like '%auto_increment%' THEN 1 ELSE 0 END IsIdentity, COLUMN_TYPE, COLUMN_KEY, COLUMN_COMMENT
             FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA IN (${MysqlDriver.escapeCommaSeparatedList(
                 dbNames
             )})
@@ -273,14 +275,15 @@ export default class MysqlDriver extends AbstractDriver {
                                 ? resp.CHARACTER_MAXIMUM_LENGTH
                                 : undefined;
                     }
-
+                    const columnComment = resp.COLUMN_COMMENT;
                     ent.columns.push({
                         generated,
                         type: columnType,
                         default: defaultValue,
                         options,
                         tscName,
-                        tscType
+                        tscType,
+                        columnComment
                     });
                 });
         });

@@ -39,15 +39,24 @@ export function relationIdName(
     return newColumnName;
 }
 
-export function relationName(relation: Relation, owner?: Entity): string {
+export function relationName(
+    relation: Relation,
+    owner?: Entity,
+    tablePrefix?: string
+): string {
     const columnOldName = relation.fieldName;
+    let newColumnName = columnOldName;
+    if (tablePrefix && columnOldName.startsWith(tablePrefix)) {
+        newColumnName = newColumnName.substring(
+            tablePrefix.length,
+            newColumnName.length
+        );
+    }
 
     const isRelationToMany =
         relation.relationType === "OneToMany" ||
         relation.relationType === "ManyToMany";
-    let newColumnName = changeCase.camelCase(
-        columnOldName.replace(/[0-9]$/, "")
-    );
+    newColumnName = changeCase.camelCase(newColumnName.replace(/[0-9]$/, ""));
 
     if (
         newColumnName.toLowerCase().endsWith("id") &&
@@ -71,7 +80,8 @@ export function relationName(relation: Relation, owner?: Entity): string {
 }
 
 export function entityName(oldEntityName: string, entity?: Entity): string {
-    return oldEntityName;
+    const Suffix = ".entity";
+    return oldEntityName + Suffix;
 }
 
 export function columnName(oldColumnName: string, column?: Column): string {

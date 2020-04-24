@@ -23,6 +23,8 @@ export default interface IGenerationOptions {
     skipSchema: boolean;
     indexFile: boolean;
     exportType: "named" | "default";
+    isGraphql: boolean;
+    tablePrefix: string;
 }
 
 export const eolConverter = {
@@ -35,20 +37,22 @@ export function getDefaultGenerationOptions(): IGenerationOptions {
         resultsPath: path.resolve(process.cwd(), "output"),
         pluralizeNames: true,
         noConfigs: false,
-        convertCaseFile: "pascal",
+        convertCaseFile: "none",
         convertCaseEntity: "pascal",
-        convertCaseProperty: "camel",
+        convertCaseProperty: "none",
         convertEol: EOL === "\n" ? "LF" : "CRLF",
         propertyVisibility: "none",
         lazy: false,
-        activeRecord: false,
+        activeRecord: true,
         generateConstructor: false,
         customNamingStrategyPath: "",
         relationIds: false,
         strictMode: "none",
         skipSchema: false,
         indexFile: false,
-        exportType: "named"
+        exportType: "named",
+        isGraphql: true,
+        tablePrefix: ""
     };
     return generationOptions;
 }

@@ -51,22 +51,32 @@ function generateModels(
     });
     databaseModel.forEach(element => {
         let casedFileName = "";
+        let tscNameCopy = element.tscName;
+        let Suffix = "";
+        if (tscNameCopy.endsWith(".entity")) {
+            Suffix = ".entity";
+            tscNameCopy = tscNameCopy.slice(
+                0,
+                tscNameCopy.length - Suffix.length
+            );
+        }
         switch (generationOptions.convertCaseFile) {
             case "camel":
-                casedFileName = changeCase.camelCase(element.tscName);
+                casedFileName = changeCase.camelCase(tscNameCopy);
                 break;
             case "param":
-                casedFileName = changeCase.paramCase(element.tscName);
+                casedFileName = changeCase.paramCase(tscNameCopy);
                 break;
             case "pascal":
-                casedFileName = changeCase.pascalCase(element.tscName);
+                casedFileName = changeCase.pascalCase(tscNameCopy);
                 break;
             case "none":
-                casedFileName = element.tscName;
+                casedFileName = tscNameCopy;
                 break;
             default:
                 throw new Error("Unknown case style");
         }
+        casedFileName += Suffix;
         const resultFilePath = path.resolve(
             entitiesPath,
             `${casedFileName}.ts`
@@ -149,6 +159,14 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
     });
     Handlebars.registerHelper("toEntityName", str => {
         let retStr = "";
+        if (generationOptions.tablePrefix) {
+            if (
+                str.substring(0, generationOptions.tablePrefix.length) ===
+                generationOptions.tablePrefix
+            ) {
+                str = str.slice(generationOptions.tablePrefix.length);
+            }
+        }
         switch (generationOptions.convertCaseEntity) {
             case "camel":
                 retStr = changeCase.camelCase(str);
@@ -166,6 +184,11 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
     });
     Handlebars.registerHelper("toFileName", str => {
         let retStr = "";
+        let Suffix = "";
+        if (str.endsWith(".entity")) {
+            Suffix = ".entity";
+            str = str.slice(0, str.length - Suffix.length);
+        }
         switch (generationOptions.convertCaseFile) {
             case "camel":
                 retStr = changeCase.camelCase(str);
@@ -182,7 +205,8 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
             default:
                 throw new Error("Unknown case style");
         }
-        return retStr;
+
+        return retStr + Suffix;
     });
     Handlebars.registerHelper("printPropertyVisibility", () =>
         generationOptions.propertyVisibility !== "none"

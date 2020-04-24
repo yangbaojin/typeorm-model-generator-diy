@@ -6,6 +6,9 @@ import {{localImport (toEntityName .)}} from './{{toFileName .}}'
 {{/inline}}
 {{#*inline "Column"}}
 {{#generated}}@PrimaryGeneratedColumn({ type:"{{type}}", {{/generated}}{{^generated}}@Column("{{type}}",{ {{#primary}}primary:{{primary}},{{/primary}}{{/generated}}{{json options}}{{#default}},default: {{.}},{{/default}} })
+{{#if graphql}}
+@Field({{#if (eq tscType "number")}} ()=>Int, {{/if}}{ description: "{{columnComment}}"{{#if options.nullable}}, nullable: true {{/if}} })
+{{/if}}
 {{printPropertyVisibility}}{{toPropertyName tscName}}{{strictMode}}:{{tscType}}{{#if options.nullable}} | null{{/if}};
 
 {{/inline}}
@@ -13,14 +16,14 @@ import {{localImport (toEntityName .)}} from './{{toFileName .}}'
 { name: "{{name}}", referencedColumnName: "{{toPropertyName referencedColumnName}}" },
 {{/inline}}
 {{#*inline "Relation"}}
-@{{relationType}}(()=>{{toEntityName relatedTable}},{{toPropertyName relatedTable}}=>{{toPropertyName relatedTable}}.{{toPropertyName relatedField}}{{#if relationOptions}},{ {{json relationOptions}} }{{/if}})
+@{{relationType}}(()=>{{toEntityName relatedTable}},{{toPropertyName fieldName}}=>{{toPropertyName fieldName}}.{{toPropertyName relatedField}}{{#if relationOptions}},{ {{json relationOptions}} }{{/if}})
 {{#if joinColumnOptions}}@JoinColumn([{{#joinColumnOptions}}{{> JoinColumnOptions}}{{/joinColumnOptions}}]){{/if}}
 {{#joinTableOptions}}@JoinTable({ name:"{{name}}", joinColumns:[{{#joinColumns}}{{> JoinColumnOptions}}{{/joinColumns}}],inverseJoinColumns:[{{#inverseJoinColumns}}{{> JoinColumnOptions}}{{/inverseJoinColumns}}],{{#database}}database:"{{.}}",{{/database}}{{#schema}}schema:"{{.}}"{{/schema}} }){{/joinTableOptions}}
 {{printPropertyVisibility}}{{toPropertyName fieldName}}{{strictMode}}:{{toRelation (toEntityName relatedTable) relationType}};
 
 {{/inline}}
 {{#*inline "RelationId"}}
-@RelationId(({{toPropertyName entityName}}:{{toEntityName entityName}})=>{{toPropertyName entityName}}.{{toPropertyName relationField}})
+@RelationId(({{toPropertyName entityName}}:{{toEntityName fieldName}})=>{{toPropertyName fieldName}}.{{toPropertyName relationField}})
 {{printPropertyVisibility}}{{toPropertyName fieldName}}{{strictMode}}:{{fieldType}};
 
 {{/inline}}
@@ -33,9 +36,12 @@ import {{localImport (toEntityName .)}} from './{{toFileName .}}'
 {{#*inline "Entity"}}
 {{#indices}}{{> Index}}{{/indices~}}
 @Entity("{{sqlName}}"{{#schema}} ,{schema:"{{.}}"{{#if ../database}}, database:"{{../database}}"{{/if}} } {{/schema}})
+{{#isGraphql}}
+@ObjectType({description: '{{tableComment}}'})
+{{/isGraphql}}
 export {{defaultExport}} class {{toEntityName tscName}}{{#activeRecord}} extends BaseEntity{{/activeRecord}} {
 
-{{#columns}}{{> Column}}{{/columns~}}
+{{#columns}}{{> Column graphql=../isGraphql}}{{/columns~}}
 {{#relations}}{{> Relation}}{{/relations~}}
 {{#relationIds}}{{> RelationId entityName=../tscName}}{{/relationIds~}}
 {{#if generateConstructor}}{{>Constructor entityName=tscName}}{{/if~}}
@@ -43,5 +49,8 @@ export {{defaultExport}} class {{toEntityName tscName}}{{#activeRecord}} extends
 {{/inline}}
 import {BaseEntity,Column,Entity,Index,JoinColumn,JoinTable,ManyToMany,ManyToOne,OneToMany,OneToOne,PrimaryColumn,PrimaryGeneratedColumn,RelationId} from "typeorm";
 {{#fileImports}}{{> Import}}{{/fileImports}}
+{{#isGraphql}}
+import { ObjectType, Field, Int } from '@nestjs/graphql';
+{{/isGraphql}}
 
 {{> Entity}}
