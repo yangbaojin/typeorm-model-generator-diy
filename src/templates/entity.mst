@@ -5,7 +5,7 @@
 import {{localImport (toEntityName .)}} from './{{toFileName .}}'
 {{/inline}}
 {{#*inline "Column"}}
-{{#generated}}@PrimaryGeneratedColumn({ type:"{{type}}", {{/generated}}{{^generated}}@Column("{{type}}",{ {{#primary}}primary:{{primary}},{{/primary}}{{/generated}}{{json options}}{{#default}},default: {{.}},{{/default}} })
+{{#generated}}@PrimaryGeneratedColumn({ type:"{{type}}", {{/generated}}{{^generated}}@Column("{{type}}",{ {{#primary}}primary:{{primary}},{{/primary}}{{/generated}}{{json options}}{{#default}},default: {{.}}{{/default}}, comment: "{{columnComment}}",})
 {{#if graphql}}
 @Field({{#if (eq tscType "number")}} ()=>Int, {{/if}}{ description: "{{columnComment}}"{{#if options.nullable}}, nullable: true {{/if}} })
 {{/if}}
